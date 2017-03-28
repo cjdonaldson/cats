@@ -230,12 +230,11 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
     * res0: cats.data.NonEmptyList[(Char, Int)] = NonEmptyList((z,1), (a,4), (e,22))
     * }}}
     */
-  def sortBy[B: Order](f: A => B): NonEmptyList[A] = {
+  def sortBy[B: Order](f: A => B): NonEmptyList[A] =
     toList.sortBy(f)(Order[B].toOrdering) match {
       case x :: xs => NonEmptyList(x, xs)
-      case Nil     => sys.error("absurd")
+      case Nil     => sys.error("unreachable: sorting a NonEmptyList cannot produce an empty List")
     }
-  }
 
   /**
     * Sorts this `NonEmptyList` according to an `Order`
@@ -249,7 +248,10 @@ final case class NonEmptyList[+A](head: A, tail: List[A]) {
     * }}}
     */
   def sorted[AA >: A](implicit AA: Order[AA]): NonEmptyList[AA] =
-    sortBy(a => a: AA)
+    toList.sorted(Order[AA].toOrdering) match {
+      case x :: xs => NonEmptyList(x, xs)
+      case Nil     => sys.error("unreachable: sorting a NonEmptyList cannot produce an empty List")
+    }
 
 }
 
